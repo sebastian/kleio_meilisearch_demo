@@ -20,6 +20,13 @@ if System.get_env("PHX_SERVER") do
   config :meili_demo, MeiliDemoWeb.Endpoint, server: true
 end
 
+config :meili_demo, :meilisearch,
+  api_key: System.get_env("MEILISEARCH_API_KEY") || "aMasterKeyThatIsSufficientlyLongAndComplex",
+  main_endpoint: System.get_env("MEILISEARCH_ENDPOINT") || "http://localhost:7700"
+
+config :meili_demo, :kleio,
+  kleio_endpoint: System.get_env("KLEIO_ENDPOINT") || "http://localhost:4000/"
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

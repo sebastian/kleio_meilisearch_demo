@@ -62,13 +62,6 @@ config :phoenix, :json_library, Jason
 
 config :tesla, adapter: Tesla.Adapter.Hackney
 
-config :meili_demo, :meilisearch,
-  api_key: System.get_env("MEILISEARCH_API_KEY") || "aMasterKeyThatIsSufficientlyLongAndComplex",
-  main_endpoint: System.get_env("MEILISEARCH_ENDPOINT") || "http://localhost:7700"
-
-config :meili_demo, :kleio,
-  kleio_endpoint: System.get_env("KLEIO_ENDPOINT") || "http://localhost:4000/"
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
