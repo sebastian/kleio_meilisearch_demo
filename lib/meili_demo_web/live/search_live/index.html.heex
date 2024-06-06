@@ -1,0 +1,79 @@
+<h1 class="font-serif text-4xl">
+  Kleio Meilisearch integration demo
+</h1>
+
+<p class="mt-6 text-xl">
+  This is a tech demo showcasing how one can integrate
+  Kleio with Meilisearch to enable sponsored products in search.
+</p>
+
+<p class="mt-6 text-xl">
+  This is a tech demo showcasing how one can integrate
+  Kleio with Meilisearch to enable sponsored products in search.
+</p>
+
+<p class="mt-6 text-xl">
+  For more information about how to enable Kleio for your own Meilisearch installation,
+  visit the Kleio Ad Server <a href="https://kle.io/docs" class="underline hover:text-gray-600">documentation</a>.
+</p>
+
+<div class="flex flex-row justify-end mt-8">
+  <div class="rounded-md bg-blue-100 border-blue-500 px-2 py-2">
+    Ad placement interface
+    <button phx-click="toggle_ad_interface" class="rounded-md bg-blue-900 text-white px-2 py-0.5 font-semibold hover:bg-blue-900/80">
+      <%= if @ad_interface do %>
+        Disable
+      <% else %>
+        Enable
+      <% end %>
+    </button>
+  </div>
+</div>
+<div class="mt-8">
+  <div class="w-full bg-green-50 p-2 flex flex-col sticky top-0 rounded-md backdrop-blur-xl">
+    <form class="grow-1 ">
+      <input
+        class="rounded-md w-full grow border border-green-200 px-2 text-2xl font-semibold focus:bg-green-300 focus:ring-4 focus:outline-none focus:border-none focus:ring-offset-2 focus:ring-green-600"
+        type="search"
+        value={@search_term}
+        phx-debounce="100"
+        phx-change="search_term_change"
+        name="search_term"
+        placeholder="Search term"
+      />
+    </form>
+    <div class="text-xs ml-2 mt-2" :if={@search_term != ""}>
+      <%= @results["estimatedTotalHits"] %> hits for search term <span class="font-medium"><%= @search_term %></span>.
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-3 mt-2 items-stretch">
+    <div :for={hit <- @results["hits"]} class="flex flex-row gap-2 items-start aspect-auto">
+      <%= if ! is_nil hit["kleio"] do %>
+      <.ad movie={hit} />
+      <% else %>
+      <.regular_movie movie={hit} ad_interface={@ad_interface} />
+      <% end %>
+      <.modal id={"poster-#{hit["id"]}"}>
+        <div class="flex flex-row m-0 p-0 gap-5">
+          <div class="w-1/3">
+            <img src={hit["poster"]} class="object-cover" />
+          </div>
+          <div class="w-2/3">
+            <h1 class="text-4xl"><%= hit["title"] %></h1>
+            <div class="flex flex-row gap-1 h-5 mt-2">
+              <div
+                :for={genre <- hit["genres"]}
+                class="rounded-full shrink-0 text-xs bg-gray-200 p-0.5 px-1.5"
+              >
+                <%= genre %>
+              </div>
+            </div>
+            <p class="mt-4"><%= hit["overview"] %></p>
+          </div>
+        </div>
+      </.modal>
+    </div>
+  </div>
+
+</div>
