@@ -1,4 +1,4 @@
-# Integarting Meilisearch and Kleio
+# Integrating Meilisearch and Kleio
 
 This is a demo application showcasing how to integrate the
 [Kleio ad-server](https://kle.io) with the [Meilisearch](https://www.meilisearch.com) search engine. Using the two together, you
