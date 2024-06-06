@@ -23,3 +23,16 @@ You can start the application directly by running:
 
 Do note however that this isn't going to work particularly well
 unless you also have Kleio and Meilisearch running.
+
+## Release
+
+To release a new version, run:
+
+```
+export VERSION=X.Y.Z
+
+docker buildx build --platform linux/arm64/v8,linux/amd64 -t getkleio/meilisearch_demo .
+docker push getkleio/meilisearch_demo:latest
+docker tag getkleio/meilisearch_demo:latest getkleio/meilisearch_demo:$VERSION
+docker push getkleio/meilisearch_demo:$VERSION
+```
