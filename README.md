@@ -4,8 +4,8 @@ This is a demo application showcasing how to integrate the
 [Kleio ad-server](https://kle.io) with the [Meilisearch](https://www.meilisearch.com) search engine. Using the two together, you
 can quickly add support for sponsored search results to your application.
 
-To see this application running (and demo) running in practice, I recommend spinning up the full suite of containers using docker compose.
-Please consult the Kleio quickstart documentation.
+To see this demo in practice, I recommend spinning up the full suite of containers 
+[using docker compose as described in the Kleio integrations documentation](https://kle.io/docs/meilisearch).
 
 ## What this repository contains
 
