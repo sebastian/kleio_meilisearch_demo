@@ -1,4 +1,11 @@
-<h1 class="font-serif text-4xl">
+<div class="text-right text-xs text-gray-400">
+  View the source <a
+    href="https://github.com/sebastian/kleio_meilisearch_demo"
+    class="underline hover:text-gray-600"
+  >on Github</a>.
+</div>
+
+<h1 class="font-serif text-4xl mt-12">
   Kleio Meilisearch integration demo
 </h1>
 
@@ -20,7 +27,10 @@
 <div class="flex flex-row justify-end mt-8">
   <div class="rounded-md bg-blue-100 border-blue-500 px-2 py-2">
     Ad placement interface
-    <button phx-click="toggle_ad_interface" class="rounded-md bg-blue-900 text-white px-2 py-0.5 font-semibold hover:bg-blue-900/80">
+    <button
+      phx-click="toggle_ad_interface"
+      class="rounded-md bg-blue-900 text-white px-2 py-0.5 font-semibold hover:bg-blue-900/80"
+    >
       <%= if @ad_interface do %>
         Disable
       <% else %>
@@ -42,7 +52,7 @@
         placeholder="Search term"
       />
     </form>
-    <div class="text-xs ml-2 mt-2" :if={@search_term != ""}>
+    <div :if={@search_term != ""} class="text-xs ml-2 mt-2">
       <%= @results["estimatedTotalHits"] %> hits for search term <span class="font-medium"><%= @search_term %></span>.
     </div>
   </div>
@@ -50,9 +60,9 @@
   <div class="flex flex-col gap-3 mt-2 items-stretch">
     <div :for={hit <- @results["hits"]} class="flex flex-row gap-2 items-start aspect-auto">
       <%= if ! is_nil hit["kleio"] do %>
-      <.ad movie={hit} />
+        <.ad movie={hit} />
       <% else %>
-      <.regular_movie movie={hit} ad_interface={@ad_interface} />
+        <.regular_movie movie={hit} ad_interface={@ad_interface} />
       <% end %>
       <.modal id={"poster-#{hit["id"]}"}>
         <div class="flex flex-row m-0 p-0 gap-5">
@@ -75,5 +85,4 @@
       </.modal>
     </div>
   </div>
-
 </div>
