@@ -1,0 +1,75 @@
+services:
+  kleio:
+    image: getkleio/kleio:latest
+    ports:
+      - 8000:8000
+    environment:
+      SECRET_KEY_BASE: rlZ6+ueWM4n/cqbOHDjFTrCuL1dkzxpX1clY0ncyN2AW4bsTObj7tQv1O/Nx2n3J
+      DATABASE_URL: ecto://kleio:password@postgres/kleio
+      HOST: localhost
+      PORT: 8000
+      MEILISEARCH_ENDPOINT: http://meilisearch:7700
+      MEILISEARCH_NUM_ADS: 2
+      MEILISEARCH_LIMIT_INCREASE: 50
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/up || exit 1"]
+      start_period: 10s
+      interval: 1s
+      timeout: 1s
+      retries: 10
+
+  meilisearch_demo:
+    image: getkleio/meilisearch_demo:latest
+    ports:
+      - 8080:8080
+    environment:
+      MEILISEARCH_API_KEY: aMasterKeyThatIsSufficientlyLongAndComplex
+      SECRET_KEY_BASE: rlZ6+ueWM4n/cqbOHDjFTrCuL1dkzxpX1clY0ncyN2AW4bsTObj7tQv1O/Nx2n3J
+      MEILISEARCH_ENDPOINT: http://meilisearch:7700
+      KLEIO_ENDPOINT: http://kleio:8000
+      HOST: localhost
+      PORT: 8080
+    depends_on:
+      kleio:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16
+    ports:
+      - 5432:5432
+    volumes:
+      - kleio-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: kleio
+      POSTGRES_DB: kleio
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      start_period: 10s
+      interval: 1s
+      timeout: 1s
+      retries: 5
+  
+  meilisearch:
+    image: getmeili/meilisearch:v1.8
+    ports:
+      - 7700:7700
+    volumes:
+      - kleio-meili-data:/meili_data
+    environment:
+      MEILI_MASTER_KEY: aMasterKeyThatIsSufficientlyLongAndComplex
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:7700/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+
+volumes:
+  kleio-postgres-data:
+  kleio-meili-data:
