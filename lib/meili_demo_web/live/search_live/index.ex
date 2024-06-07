@@ -9,6 +9,7 @@ defmodule MeiliDemoWeb.SearchLive.Index do
 
     {:ok,
       socket
+      |> assigns_from_params(params)
       |> assign(:search_term, term)
       |> assign(:ad_interface, false)
       |> assign(:create_ad, nil)
@@ -17,14 +18,35 @@ defmodule MeiliDemoWeb.SearchLive.Index do
   end
 
   @impl true
-  def handle_params(%{"q" => term}, _uri, socket) do
-    search(term)
-    {:noreply, assign(socket, :search_term, term)}
+  def handle_params(params, _uri, socket) do
+    socket = assigns_from_params(socket, params)
+    search(socket.assigns.search_term)
+    {:noreply, socket}
+  end
+
+  def assigns_from_params(socket, params) do
+    socket
+    |> assign(:search_term, params["q"] || "")
+    |> assign(:ad_interface, not is_nil params["admin"])
+  end
+
+  def push_patch_from_assigns(socket) do
+    url = case {socket.assigns.search_term, socket.assigns.ad_interface} do
+      {"", false} -> "/"
+      {"", true} -> "/?admin"
+      {term, false} -> "/?q=#{URI.encode(term)}"
+      {term, true} -> "/?q=#{URI.encode(term)}&admin"
+    end
+    push_patch(socket, to: url, replace: true)
   end
 
   @impl true
   def handle_event("toggle_ad_interface", _params, socket) do
-    {:noreply, assign(socket, :ad_interface, not socket.assigns.ad_interface)}
+    {:noreply,
+      socket
+      |> assign(:ad_interface, not socket.assigns.ad_interface)
+      |> push_patch_from_assigns()
+    }
   end
 
   def handle_event("search_term_change", %{"q" => term}, socket) do
@@ -52,7 +74,22 @@ defmodule MeiliDemoWeb.SearchLive.Index do
   def handle_event("create_ad", %{"bid" => bid, "movie_id" => movie_id, "title" => title}, socket) do
     {bid, _} = Integer.parse(bid)
     MeiliDemo.Kleio.Client.create_ad(movie_id, "Ad for #{title}", bid)
+    delayed_search(socket.assigns.search_term)
+    {:noreply, socket}
+  end
 
+  def handle_event("remove_ad", %{"movie_id" => movie_id}, socket) do
+    MeiliDemo.Kleio.Client.delete_ad(movie_id)
+    delayed_search(socket.assigns.search_term)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:search_result, result}, socket) do
+    {:noreply, assign(socket, :results, result)}
+  end
+
+  def delayed_search(term) do
     # We perform some searches after creating the ad
     # to have the demo interface show it immediately.
     # This, of course, you wouldn't do in a regular setup.
@@ -60,16 +97,9 @@ defmodule MeiliDemoWeb.SearchLive.Index do
     spawn(fn ->
       for delay <- [10, 100, 1000] do
         :timer.sleep(delay) # 1.5 s
-        search(socket.assigns.search_term, me)
+        search(term, me)
       end
     end)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({:search_result, result}, socket) do
-    {:noreply, assign(socket, :results, result)}
   end
 
   defp search(term, me \\ self()) do
@@ -153,7 +183,18 @@ defmodule MeiliDemoWeb.SearchLive.Index do
             </div>
           </div>
           <p class="text-xs"><%= @movie["overview"] %></p>
-          <div class="mt-1"><span class="text-xs rounded-full font-bold bg-blue-500 text-white px-2 py-1">sponsored</span></div>
+          <div>
+            <div class="mt-1"><span class="text-xs rounded-full font-bold bg-blue-500 text-white px-2 py-1">sponsored</span></div>
+            <%= if @ad_interface do %>
+              <button
+                class="transition-all duration-300 hover:bg-green-500 border-green-500 hover:border-white group border rounded-full hover:text-white px-1.5 py-0.5 text-xs -mt-0.5"
+                phx-click={show_modal("create-ad-#{@movie["id"]}")}
+              >
+                <span class="group-hover:hidden inline">Boost</span>
+                <span class="group-hover:inline hidden">Boost <%= @movie["title"] %> with an ad</span>
+              </button>
+            <% end %>
+          </div>
         </div>
       </div>
     """

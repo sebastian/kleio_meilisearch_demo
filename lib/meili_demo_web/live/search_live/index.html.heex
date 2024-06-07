@@ -64,7 +64,7 @@
   <div class="flex flex-col gap-3 mt-2 items-stretch">
     <div :for={hit <- @results["hits"]} class="flex flex-row gap-2 items-start aspect-auto">
       <%= if ! is_nil hit["kleio"] do %>
-        <.ad movie={hit} />
+        <.ad movie={hit} ad_interface={@ad_interface} />
       <% else %>
         <.regular_movie movie={hit} ad_interface={@ad_interface} />
       <% end %>
