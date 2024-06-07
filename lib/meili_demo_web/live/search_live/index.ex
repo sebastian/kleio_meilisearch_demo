@@ -2,8 +2,8 @@ defmodule MeiliDemoWeb.SearchLive.Index do
   use MeiliDemoWeb, :live_view
 
   @impl true
-  def mount(_params, _session, socket) do
-    term = "godzilla"
+  def mount(params, _session, socket) do
+    term = params["q"] || ""
 
     search(term)
 
@@ -17,13 +17,18 @@ defmodule MeiliDemoWeb.SearchLive.Index do
   end
 
   @impl true
+  def handle_params(%{"q" => term}, _uri, socket) do
+    search(term)
+    {:noreply, assign(socket, :search_term, term)}
+  end
+
+  @impl true
   def handle_event("toggle_ad_interface", _params, socket) do
     {:noreply, assign(socket, :ad_interface, not socket.assigns.ad_interface)}
   end
 
-  def handle_event("search_term_change", %{"search_term" => term}, socket) do
-    search(term)
-    {:noreply, assign(socket, :search_term, term)}
+  def handle_event("search_term_change", %{"q" => term}, socket) do
+    {:noreply, push_patch(socket, to: "/?q=#{URI.encode(term)}", replace: true)}
   end
 
   def handle_event("track_ad", %{"movie" => id}, socket) do

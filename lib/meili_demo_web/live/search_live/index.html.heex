@@ -2,8 +2,7 @@
   <a
     href="https://github.com/sebastian/kleio_meilisearch_demo"
     class="underline hover:text-gray-600"
-  >Source code on Github</a>. 
-  <a
+  >Source code on Github</a>. <a
     href="https://kle.io/docs/meilisearch"
     class="underline hover:text-gray-600"
   >View the documentation</a>,
@@ -52,7 +51,7 @@
         value={@search_term}
         phx-debounce="100"
         phx-change="search_term_change"
-        name="search_term"
+        name="q"
         placeholder="Search term"
       />
     </form>
