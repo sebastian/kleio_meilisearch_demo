@@ -10,6 +10,7 @@ defmodule MeiliDemoWeb.SearchLive.Index do
     {:ok,
      socket
      |> assigns_from_params(params)
+     |> assign(:error, nil)
      |> assign(:search_term, term)
      |> assign(:ad_interface, false)
      |> assign(:create_ad, nil)
@@ -88,7 +89,18 @@ defmodule MeiliDemoWeb.SearchLive.Index do
 
   @impl true
   def handle_info({:search_result, result}, socket) do
-    {:noreply, assign(socket, :results, result)}
+    socket =
+      case result["error"] do
+        nil ->
+          socket
+          |> assign(:results, result)
+          |> assign(:error, nil)
+        msg ->
+          socket
+          |> assign(:results, %{"estimatedTotalHits" => 0, "hits" => []})
+          |> assign(:error, "The following error was returned by Kleio: #{msg}")
+      end
+    {:noreply, socket}
   end
 
   def delayed_search(term) do
