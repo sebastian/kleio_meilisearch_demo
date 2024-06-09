@@ -68,7 +68,7 @@ defmodule MeiliDemoWeb.SearchLive.Index do
       ad ->
         ad_data = ad["kleio"]
         tracking_code = ad_data["tracking_code"]
-        MeiliDemo.Kleio.Client.track_conversion(tracking_code)
+        MeiliDemo.Kleio.Client.track_click(tracking_code)
     end
 
     {:noreply, socket}

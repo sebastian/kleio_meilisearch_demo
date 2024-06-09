@@ -24,7 +24,7 @@ defmodule MeiliDemo.Kleio.Client do
     post("/api/v1/track/impression/#{code}", %{})
   end
 
-  def track_conversion(code) do
-    post("/api/v1/track/conversion/#{code}", %{})
+  def track_click(code) do
+    post("/api/v1/track/click/#{code}", %{})
   end
 end
