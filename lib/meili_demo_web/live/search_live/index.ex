@@ -51,7 +51,11 @@ defmodule MeiliDemoWeb.SearchLive.Index do
   end
 
   def handle_event("search_term_change", %{"q" => term}, socket) do
-    {:noreply, push_patch(socket, to: "/?q=#{URI.encode(term)}", replace: true)}
+    {:noreply,
+      socket
+      |> assign(:search_term, term)
+      |> push_patch_from_assigns()
+    }
   end
 
   def handle_event("track_ad", %{"movie" => id}, socket) do
