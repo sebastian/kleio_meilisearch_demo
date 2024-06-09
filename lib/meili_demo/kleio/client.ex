@@ -4,12 +4,8 @@ defmodule MeiliDemo.Kleio.Client do
   plug Tesla.Middleware.BaseUrl, "#{Application.get_env(:meili_demo, :kleio)[:kleio_endpoint]}/"
   plug Tesla.Middleware.JSON
 
-  def create_ad(product_id, name, max_bid) do
-    post("/api/v1/ads", %{
-      product_id: product_id,
-      name: name,
-      max_bid: max_bid,
-    })
+  def create_ad(params) do
+    post("/api/v1/ads", params)
   end
 
   # In this case we are using the products endpoint rather than then

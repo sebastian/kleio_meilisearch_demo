@@ -74,9 +74,25 @@ defmodule MeiliDemoWeb.SearchLive.Index do
     {:noreply, socket}
   end
 
-  def handle_event("create_ad", %{"bid" => bid, "movie_id" => movie_id, "title" => title}, socket) do
+  def handle_event(
+        "create_ad",
+        %{"bid" => bid, "movie_id" => movie_id, "title" => title, "converts_on" => converts_on},
+        socket
+      ) do
     {bid, _} = Integer.parse(bid)
-    MeiliDemo.Kleio.Client.create_ad(movie_id, "Ad for #{title}", bid)
+
+    params =
+      %{
+        product_id: movie_id,
+        name: "Ad for #{title}",
+        max_bid: bid,
+        converts_on: converts_on
+      }
+
+    MeiliDemo.Kleio.Client.create_ad(params)
+
+    # After having created the ad, we kick off a search so the
+    # user of the tech demo can see the ad appearing.
     delayed_search(socket.assigns.search_term)
     {:noreply, socket}
   end
@@ -95,11 +111,13 @@ defmodule MeiliDemoWeb.SearchLive.Index do
           socket
           |> assign(:results, result)
           |> assign(:error, nil)
+
         msg ->
           socket
           |> assign(:results, %{"estimatedTotalHits" => 0, "hits" => []})
           |> assign(:error, "The following error was returned by Kleio: #{msg}")
       end
+
     {:noreply, socket}
   end
 
@@ -137,6 +155,28 @@ defmodule MeiliDemoWeb.SearchLive.Index do
           <input type="hidden" name="title" value={@movie["title"]} />
           <input type="hidden" name="movie_id" value={@movie["id"]} />
           <.input class="border" type="number" label="Maximum bid" name="bid" value="100" />
+
+          <div class="mt-6 text-sm font-semibold">
+            What to considered a conversion
+            <span>
+              <a
+                href="https://kle.io/docs/tracking-endpoint"
+                target="_blank"
+                class="text-gray-500 underline hover:text-gray-900 bg-gray-100 px-1 py-0.5 rounded-md"
+              >
+                More info
+              </a>
+            </span>
+          </div>
+          <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+            <input type="radio" name="converts_on" value="impression" />
+            <span class="font-semibold">Impressions</span> (pay per view - CPM)
+          </label>
+          <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+            <input type="radio" name="converts_on" value="click" checked />
+            <span class="font-semibold">Click</span> (pay per click or CPC)
+          </label>
+
           <div class="mt-4 flex items-center justify-between gap-6">
             <.button phx-click={hide_modal("create-ad-#{@movie["id"]}")}>Create ad</.button>
           </div>
